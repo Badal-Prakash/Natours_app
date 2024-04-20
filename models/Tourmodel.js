@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const slugify = require('slugify');
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -81,6 +83,24 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true }
   }
 );
+tourSchema.virtual('durationWeek').get(function() {
+  return this.duration / 7;
+});
 
+tourSchema.pre('save', function(next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+// tourSchema.post('save', function(doc, next) {
+//   console.log(doc);
+//   next();
+// });
+//document middleware run only for .save() and .create()
+
+tourSchema.pre('/^find/', function(next) {
+  //=>all the function starts with find will be executed
+  this.find({ secretTour: { $ne: true } });
+  next();
+});
 const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;
