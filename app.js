@@ -2,18 +2,20 @@ const express = require('express');
 
 const morgan = require('morgan');
 
-const AppError = require('./utils/appError');
+const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controller/errorController');
-const app = express();
+
 const tourRouter = require('./routes/tourRoutes');
+
 const userRouter = require('./routes/userRoutes');
+
+const app = express();
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  console.log(req.headers);
   next();
 });
 
