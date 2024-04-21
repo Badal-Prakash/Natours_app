@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const validator = require('validator'); // to use custom validator functions
+
 const bcrypt = require('bcryptjs'); //to encrypt password before sending
+
 const userschema = new mongoose.Schema({
   name: {
     type: String,
@@ -33,7 +36,14 @@ const userschema = new mongoose.Schema({
       },
       message: 'confirmPassword must be same as password'
     }
-  }
+  },
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user'
+  },
+  passwordResetToken: String,
+  passwordResetExpires: Date
 });
 //only work on save or create
 //normal function is used beacuse we need this keyword here in arrow function this keyword is not available
@@ -62,6 +72,19 @@ userschema.methods.changedpasswordAfter = function(JWTTimestamp) {
   return false;
 };
 
+userschema.methods.createPasswordResetToken = function() {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  console.log({ resetToken }, this.passwordResetToken);
+  return resetToken;
+};
 const User = mongoose.model('User', userschema);
 
 module.exports = User;

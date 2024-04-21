@@ -106,3 +106,37 @@ exports.protect = async (req, res, next) => {
     });
   }
 };
+
+exports.restrictedTo = (...roles) => {
+  return (req, res, next) => {
+    //roles is an array
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'you dont have permission to perform this action'
+      });
+    }
+    next();
+  };
+};
+exports.forgotpassword = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'user not found'
+      });
+    }
+    const resetToken = user.createPasswordResetToken();
+
+    await user.save({ validateBeforeSave: false });
+  } catch (error) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Email and password are required.'
+    });
+  }
+};
+const resetpassword = (req, res, next) => {};

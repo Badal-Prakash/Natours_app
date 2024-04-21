@@ -6,6 +6,9 @@ const authController = require('./../controller/authController');
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
+router.post('/forgotpassword', authController.forgotpassword);
+// router.post('/resetpassword', authController.resetpassword);
+
 router
   .route('/')
   .get(userconroller.getallusers)
@@ -16,3 +19,4 @@ router
   .patch(userconroller.patchUser)
   .delete(userconroller.deleteUser);
 module.exports = router;
+ 
